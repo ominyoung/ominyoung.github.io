@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "yolov5 탐지 이미지 저장 방식"
+date:   2023-06-18 20:26:30 +0900
+categories: yolov5
+---
+
+yolov5로 객체 탐지한 이미지 결과를 저장해야하는 문제가 발행하였다.
+`지정된 경로`로 저장을 해야하는데 save()함수를 사용하면 저장명과 폴더를 직접적으로 정의해줄 수 없었다. 결과적으로 render() 함수를 이용해서 저장하는 방식을 발견했다.
+
+### 1. 데이터셋 로드
+{% highlight ruby %}
+import torch
+
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='./best.pt', force_reload=True)  # PyTorch
+{% endhighlight %}
+
+
+### 2. cv2화 시킨 이미지 객체 탐지
+{% highlight ruby %}
+image = './img.jpg' # 이미지 경로
+src = cv2.imread(image) 
+
+result = model([src])
+{% endhighlight %}
+
+### 3. render 함수로 2차원 배열화시킨 후 cv2.imwirte로 저장
+{% highlight ruby %}
+import cv2
+render = result.render() # 바로 2차원 배열로 결과가 도출되지 않고 한 겹의 리스트로 쌓여있다.
+
+cv2.imwrite("target.png",render[0])
+{% endhighlight %}
